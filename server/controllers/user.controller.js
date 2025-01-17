@@ -30,9 +30,9 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
 
         const accessToken = await user.generateAccessToken();
 
-        const registeredUser = await User.findById(user._id).select("-password");
+        // const registeredUser = await User.findById(user._id).select("-password");
 
-        return sendSuccess(res, constants.CREATED, "User registered successfully", { registeredUser, accessToken });
+        return sendSuccess(res, constants.CREATED, "User registered successfully", { accessToken });
     } catch (error) {
         sendServerError(res, error);
     }
@@ -58,10 +58,20 @@ export const loginUser = expressAsyncHandler(async (req, res) => {
 
         const accessToken = await user.generateAccessToken();
 
-        const loggedInUser = await User.findById(user._id).select("-password");
+        // const loggedInUser = await User.findById(user._id).select("-password");
 
-        return sendSuccess(res, constants.OK, "User logged in successfully", { accessToken, user: loggedInUser });
+        return sendSuccess(res, constants.OK, "User logged in successfully", { accessToken });
     } catch (error) {
         sendServerError(res, error);
+    }
+});
+
+export const getProfile = expressAsyncHandler(async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select("-password");
+
+        return sendSuccess(res, constants.OK, "Profile fetched successfully", user);
+    } catch (error) {
+        return sendServerError(res, error);
     }
 });

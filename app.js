@@ -33,5 +33,7 @@ app.get("/", (req, res) => {
 
 // Import routes
 import userRoutes from "./server/routes/user.routes.js";
+import transactionRoutes from "./server/routes/transaction.routes.js";
 
-app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/transaction", transactionRoutes);
