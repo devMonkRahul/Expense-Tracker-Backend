@@ -40,7 +40,7 @@ export const getIncomes = expressAsyncHandler(async (req, res) => {
         const incomes = await Income.find({ user: req.user._id });
 
         if (incomes.length === 0) {
-            return sendSuccess(res, constants.NO_CONTENT, "No incomes found");
+            return sendSuccess(res, constants.OK, "No incomes found");
         }
 
         return sendSuccess(res, constants.OK, "Incomes retrieved successfully", incomes);
