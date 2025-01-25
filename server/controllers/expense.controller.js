@@ -40,7 +40,7 @@ export const getExpenses = expressAsyncHandler(async (req, res) => {
         const expenses = await Expense.find({ user: req.user._id });
 
         if (expenses.length === 0) {
-            return sendSuccess(res, constants.NO_CONTENT, "No expenses found");
+            return sendSuccess(res, constants.OK, "No expenses found");
         }
 
         return sendSuccess(res, constants.OK, "Expenses retrieved successfully", expenses);
