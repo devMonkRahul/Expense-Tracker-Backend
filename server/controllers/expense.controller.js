@@ -49,6 +49,37 @@ export const getExpenses = expressAsyncHandler(async (req, res) => {
     }
 });
 
+export const editExpense = expressAsyncHandler(async (req, res) => {
+    try {
+        const { expenseId } = req.params;
+        const { title, amount, date, category, description } = req.body;
+
+        if (!expenseId) {
+            return sendError(res, constants.VALIDATION_ERROR, "Expense ID is required");
+        }
+
+        if (amount && amount <= 0) {
+            return sendError(res, constants.VALIDATION_ERROR, "Amount must be greater than 0");
+        }
+
+        if (description && (description.length <= 0 || description.length > 20)) {
+            return sendError(res, constants.VALIDATION_ERROR, "Description must be between 1 and 20 characters");
+        }
+
+        const expense = await Expense.findByIdAndUpdate(expenseId, {
+            title,
+            amount,
+            date,
+            category,
+            description,
+        }, { new: true });
+
+        return sendSuccess(res, constants.OK, "Expense updated successfully", expense);
+    } catch (error) {
+        return sendServerError(res, error);
+    }
+});
+
 export const deleteExpense = expressAsyncHandler(async (req, res) => {
     try {
         const { expenseId } = req.params;
