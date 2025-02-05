@@ -28,7 +28,6 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
     },
     profileImage: {
@@ -53,6 +52,7 @@ const userSchema = new Schema(
 
 // Hash the password before saving the user model
 userSchema.pre("save", async function (next) {
+  if (!this.password) return next();
   if (!this.isModified("password")) {
     return next();
   }

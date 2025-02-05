@@ -8,8 +8,12 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
     try {
         const { fullName, username, email, password, profileImage, isGmailUser } = req.body;
 
-        if (!fullName || !email || !password) {
+        if (!fullName || !email) {
             return sendError(res, constants.VALIDATION_ERROR, "Please fill in all required fields");
+        }
+
+        if (!isGmailUser && !password) {
+            return sendError(res, constants.VALIDATION_ERROR, "Please provide a password");
         }
 
         // Check if the user already exists
@@ -40,7 +44,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
 
 export const loginUser = expressAsyncHandler(async (req, res) => {
     try {
-        const { email, username, password } = req.body;
+        const { email, username, password, isGmailUser } = req.body;
 
         if (!email && !username) {
             return sendError(res, constants.VALIDATION_ERROR, "Please provide an email or username");
@@ -52,8 +56,12 @@ export const loginUser = expressAsyncHandler(async (req, res) => {
             return sendError(res, constants.NO_CONTENT, "User not found");
         }
 
-        if (!(await user.isPasswordCorrect(password))) {
+        if (!user.isGmailUser && !(await user.isPasswordCorrect(password))) {
             return sendError(res, constants.UNAUTHORIZED, "Invalid credentials");
+        }
+
+        if (user.isGmailUser && !isGmailUser) {
+            return sendError(res, constants.UNAUTHORIZED, "Please login with Google");
         }
 
         const accessToken = await user.generateAccessToken();
