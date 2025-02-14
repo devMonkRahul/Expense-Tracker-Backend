@@ -66,7 +66,6 @@ export const getIncomes = expressAsyncHandler(async (req, res) => {
     let filter = { user: req.user._id };
 
     const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
 
     if (week) {
       const week = parseInt(req.query.week);
@@ -92,11 +91,6 @@ export const getIncomes = expressAsyncHandler(async (req, res) => {
       filter.date = {
         $gte: new Date(year, 0, 1),
         $lt: new Date(year + 1, 0, 1),
-      };
-    } else {
-      filter.date = {
-        $gte: new Date(currentYear, currentMonth - 1, 1),
-        $lt: new Date(currentYear, currentMonth, 1),
       };
     }
     const incomes = await Income.find(filter).skip(skip).limit(limit);
