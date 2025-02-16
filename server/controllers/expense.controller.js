@@ -94,7 +94,7 @@ export const getExpenses = expressAsyncHandler(async (req, res) => {
       };
     }
 
-    const expenses = await Expense.find(filter).skip(skip).limit(limit);
+    const expenses = await Expense.find(filter).sort({ date: -1 }).skip(skip).limit(limit);
 
     const totalExpenses = await Expense.countDocuments(filter);
     const totalPages = Math.ceil(totalExpenses / limit);

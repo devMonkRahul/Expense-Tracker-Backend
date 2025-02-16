@@ -93,7 +93,7 @@ export const getIncomes = expressAsyncHandler(async (req, res) => {
         $lt: new Date(year + 1, 0, 1),
       };
     }
-    const incomes = await Income.find(filter).skip(skip).limit(limit);
+    const incomes = await Income.find(filter).sort({ date: -1 }).skip(skip).limit(limit);
 
     const totalIncomes = await Income.countDocuments(filter);
     const totalPages = Math.ceil(totalIncomes / limit);
