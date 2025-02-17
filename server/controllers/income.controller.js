@@ -58,18 +58,59 @@ export const createIncome = expressAsyncHandler(async (req, res) => {
 
 export const getIncomes = expressAsyncHandler(async (req, res) => {
   try {
-    const incomes = await Income.find({ user: req.user._id });
+    const { week, month, year } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    let filter = { user: req.user._id };
+
+    const currentYear = new Date().getFullYear();
+
+    if (week) {
+      const week = parseInt(req.query.week);
+      const year = parseInt(req.query.year) || currentYear;
+      const firstDayOfYear = new Date(year, 0, 1);
+      const firstWeekDay = firstDayOfYear.getDay();
+      const daysOffset = (week - 1) * 7 - firstWeekDay;
+      const startDate = new Date(
+        firstDayOfYear.setDate(firstDayOfYear.getDate() + daysOffset)
+      );
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 7);
+      filter.date = { $gte: startDate, $lt: endDate };
+    } else if (month) {
+      const month = parseInt(req.query.month);
+      const year = parseInt(req.query.year) || currentYear;
+      filter.date = {
+        $gte: new Date(year, month - 1, 1),
+        $lt: new Date(year, month, 1),
+      };
+    } else if (year) {
+      const year = parseInt(req.query.year);
+      filter.date = {
+        $gte: new Date(year, 0, 1),
+        $lt: new Date(year + 1, 0, 1),
+      };
+    }
+    const incomes = await Income.find(filter).sort({ date: -1 }).skip(skip).limit(limit);
+
+    const totalIncomes = await Income.countDocuments(filter);
+    const totalPages = Math.ceil(totalIncomes / limit);
 
     if (incomes.length === 0) {
       return sendSuccess(res, constants.OK, "No incomes found");
     }
 
-    return sendSuccess(
-      res,
-      constants.OK,
-      "Incomes retrieved successfully",
-      incomes
-    );
+    return sendSuccess(res, constants.OK, "Incomes retrieved successfully", {
+      incomes,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalIncomes,
+        limit,
+      },
+    });
   } catch (error) {
     return sendServerError(res, error);
   }
