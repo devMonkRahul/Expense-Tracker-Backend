@@ -66,6 +66,8 @@ app.get("/logs", (req, res) => {
 // Import routes
 import userRoutes from "./server/routes/user.routes.js";
 import transactionRoutes from "./server/routes/transaction.routes.js";
+import budgetRoutes from "./server/routes/budget.routes.js";
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
+app.use("/api/v1/budget", budgetRoutes);
