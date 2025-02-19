@@ -76,7 +76,7 @@ budgetSchema.pre("remove", async function (next) {
     }
 });
 
-budgetSchema.pre("findOneAndRemove", async function (next) {
+budgetSchema.pre("findOneAndDelete", async function (next) {
     try {
         const budget = await this.model.findOne(this.getQuery());
         if (!budget) return next();
