@@ -147,6 +147,10 @@ export const validateUsername = expressAsyncHandler(async (req, res) => {
             return sendError(res, constants.VALIDATION_ERROR, "Please provide a username");
         }
 
+        if (username === req.user.username) {
+            return sendSuccess(res, constants.OK, "Username available");
+        }
+
         const existingUser = await User.findOne({ username });
 
         if (existingUser) {
@@ -165,6 +169,10 @@ export const validateEmail = expressAsyncHandler(async (req, res) => {
 
         if (!email) {
             return sendError(res, constants.VALIDATION_ERROR, "Please provide an email");
+        }
+
+        if (email === req.user.email) {
+            return sendSuccess(res, constants.OK, "Email available");
         }
 
         const existingUser = await User.findOne({ email: email.toLowerCase() });
