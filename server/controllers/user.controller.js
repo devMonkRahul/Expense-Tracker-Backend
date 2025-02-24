@@ -141,23 +141,23 @@ export const changePassword = expressAsyncHandler(async (req, res) => {
 
 export const validateUsername = expressAsyncHandler(async (req, res) => {
     try {
-        const { username } = req.body;
+        const { username } = req.params;
 
         if (!username) {
             return sendError(res, constants.VALIDATION_ERROR, "Please provide a username");
         }
 
         if (username === req.user.username) {
-            return sendSuccess(res, constants.OK, "Username available");
+            return sendSuccess(res, constants.OK, "Username available", { available: true });
         }
 
         const existingUser = await User.findOne({ username });
 
         if (existingUser) {
-            return sendError(res, constants.CONFLICT, "Username already exists");
+            return sendSuccess(res, constants.OK, "Username already exists", { available: false });
         }
 
-        return sendSuccess(res, constants.OK, "Username available");
+        return sendSuccess(res, constants.OK, "Username available", { available: true });
     } catch (error) {
         return sendServerError(res, error);
     }
@@ -165,23 +165,23 @@ export const validateUsername = expressAsyncHandler(async (req, res) => {
 
 export const validateEmail = expressAsyncHandler(async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email } = req.params;
 
         if (!email) {
             return sendError(res, constants.VALIDATION_ERROR, "Please provide an email");
         }
 
         if (email === req.user.email) {
-            return sendSuccess(res, constants.OK, "Email available");
+            return sendSuccess(res, constants.OK, "Email available", { available: true });
         }
 
         const existingUser = await User.findOne({ email: email.toLowerCase() });
 
         if (existingUser) {
-            return sendError(res, constants.CONFLICT, "Email already exists");
+            return sendSuccess(res, constants.OK, "Email already exists", { available: false });
         }
 
-        return sendSuccess(res, constants.OK, "Email available");
+        return sendSuccess(res, constants.OK, "Email available", { available: true });
     } catch (error) {
         return sendServerError(res, error);
     }

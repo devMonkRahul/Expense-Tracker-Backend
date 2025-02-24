@@ -10,7 +10,7 @@ router.route("/profile").get(verifyUser, getProfile);
 router.route("/profile/update").patch(verifyUser, updateProfile);
 router.route("/profile/changePassword").patch(verifyUser, changePassword);
 
-router.route("/validate/username").post(verifyUser, validateUsername);
-router.route("/validate/email").post(verifyUser, validateEmail);
+router.route("/validate/username/:username").get(verifyUser, validateUsername);
+router.route("/validate/email/:email").get(verifyUser, validateEmail);
 
 export default router;
