@@ -83,3 +83,106 @@ export const getProfile = expressAsyncHandler(async (req, res) => {
         return sendServerError(res, error);
     }
 });
+
+export const updateProfile = expressAsyncHandler(async (req, res) => {
+    try {
+        const { fullName, username, email, profileImage, currency } = req.body;
+
+        let data = {};
+        if (fullName) data.fullName = fullName;
+        if (username) data.username = username;
+        if (email) data.email = email;
+        if (profileImage) data.profileImage = profileImage;
+        if (currency) data.currency = currency;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            data,
+            { new: true }
+        );
+
+        return sendSuccess(res, constants.OK, "Profile updated successfully", updatedUser);
+    } catch (error) {
+        return sendServerError(res, error);
+    }
+});
+
+export const changePassword = expressAsyncHandler(async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return sendError(res, constants.VALIDATION_ERROR, "Please provide all fields");
+        }
+
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return sendError(res, constants.NO_CONTENT, "User not found");
+        }
+
+        if (!(await user.isPasswordCorrect(currentPassword))) {
+            return sendError(res, constants.UNAUTHORIZED, "Invalid current password");
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await User.findByIdAndUpdate(
+            req.user._id,
+            { password: hashedPassword }
+        );
+
+        return sendSuccess(res, constants.OK, "Password updated successfully");
+    } catch (error) {
+        return sendServerError(res, error);
+    }
+});
+
+export const validateUsername = expressAsyncHandler(async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        if (!username) {
+            return sendError(res, constants.VALIDATION_ERROR, "Please provide a username");
+        }
+
+        if (username === req.user.username) {
+            return sendSuccess(res, constants.OK, "Username available", { available: true });
+        }
+
+        const existingUser = await User.findOne({ username });
+
+        if (existingUser) {
+            return sendSuccess(res, constants.OK, "Username already exists", { available: false });
+        }
+
+        return sendSuccess(res, constants.OK, "Username available", { available: true });
+    } catch (error) {
+        return sendServerError(res, error);
+    }
+});
+
+export const validateEmail = expressAsyncHandler(async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        if (!email) {
+            return sendError(res, constants.VALIDATION_ERROR, "Please provide an email");
+        }
+
+        if (email === req.user.email) {
+            return sendSuccess(res, constants.OK, "Email available", { available: true });
+        }
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+
+        if (existingUser) {
+            return sendSuccess(res, constants.OK, "Email already exists", { available: false });
+        }
+
+        return sendSuccess(res, constants.OK, "Email available", { available: true });
+    } catch (error) {
+        return sendServerError(res, error);
+    }
+});
