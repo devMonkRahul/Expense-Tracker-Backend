@@ -1,0 +1,26 @@
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+
+  expense-tracker-backend:
+    depends_on:
+      - mongodb
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - "5000:4000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/expense-tracker
+      - PORT=4000
+      - ACCESS_TOKEN_SECRET=access-token-secret
+      - ACCESS_TOKEN_EXPIRY=1d
+
+volumes:
+  mongodb-data:
+    driver: local
