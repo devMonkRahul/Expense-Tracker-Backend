@@ -30,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 // Allowed domains
 const allowedDomains = [
     "https://www.therahul.xyz", // production
+    "https://expense-tracker-mu-wheat.vercel.app", // production
     "http://localhost:5173", // for development
     "http://localhost:5174", // for development
 ];
