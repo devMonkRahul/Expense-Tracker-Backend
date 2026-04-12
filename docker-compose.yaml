@@ -1,24 +1,33 @@
 services:
   mongodb:
-    image: mongo
+    image: mongo:7
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
       - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   expense-tracker-backend:
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
-
+    restart: unless-stopped
     ports:
-      - "5000:4000"
+      - "4000:4000"
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/expense-tracker
       - PORT=4000
-      - ACCESS_TOKEN_SECRET=access-token-secret
+      - NODE_ENV=production
+      - ACCESS_TOKEN_SECRET=change-me-in-production
       - ACCESS_TOKEN_EXPIRY=1d
 
 volumes:
